@@ -16,21 +16,18 @@ func SetupRoutes(router *gin.Engine, db *pgx.Conn) {
 	authService := services.NewAuthService(userRepo)
 	authHandler := handlers.NewAuthHandler(authService)
 
-	// Product
+	// Products
 	productRepo := repositories.NewProductRepository(db)
 	productService := services.NewProductService(productRepo)
 	productHandler := handlers.NewProductHandler(productService)
 
 	api := router.Group("/api/v1")
 
-	// Authentication routes
 	auth := api.Group("/auth")
 	{
 		auth.POST("/register", authHandler.Register)
-
 	}
 
-	// Product routes
 	products := api.Group("/products")
 	{
 		products.POST("", productHandler.CreateProduct)

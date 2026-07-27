@@ -5,45 +5,86 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/vegoinc10/vego-network/apps/gochop-api/internal/models"
 	"github.com/vegoinc10/vego-network/apps/gochop-api/internal/services"
 )
 
 type ProductHandler struct {
-	productService *services.ProductService
+	service *services.ProductService
 }
 
-func NewProductHandler(productService *services.ProductService) *ProductHandler {
+func NewProductHandler(service *services.ProductService) *ProductHandler {
 	return &ProductHandler{
-		productService: productService,
+		service: service,
 	}
 }
 
 func (h *ProductHandler) CreateProduct(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"message": "Create Product endpoint",
+
+	var req models.CreateProductRequest
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(400, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	// Temporary seller ID
+	sellerID := "99653013-45d6-4590-99ef-44b92c48f2b1"
+
+	err := h.service.CreateProduct(sellerID, &req)
+
+	if err != nil {
+		c.JSON(500, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(201, gin.H{
+		"message": "Product created successfully",
 	})
 }
 
 func (h *ProductHandler) GetProducts(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"message": "Get Products endpoint",
-	})
+
+	products, err := h.service.GetProducts()
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, products)
 }
 
 func (h *ProductHandler) GetProduct(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"message": "Get Product endpoint",
-	})
+
+	id := c.Param("id")
+
+	product, err := h.service.GetProductByID(id)
+
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": "Product not found",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, product)
 }
 
 func (h *ProductHandler) UpdateProduct(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Update Product endpoint",
+		"message": "Update Product",
 	})
 }
 
 func (h *ProductHandler) DeleteProduct(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Delete Product endpoint",
+		"message": "Delete Product",
 	})
 }
