@@ -187,3 +187,54 @@ func (r *ProductRepository) GetProductByID(id string) (*models.Product, error) {
 
 	return &product, nil
 }
+func (r *ProductRepository) UpdateProduct(id string, product *models.CreateProductRequest) error {
+
+	query := `
+	UPDATE products
+	SET
+		name = $1,
+		description = $2,
+		category = $3,
+		price = $4,
+		currency = $5,
+		quantity = $6,
+		unit = $7,
+		market_name = $8,
+		state = $9,
+		lga = $10,
+		image_url = $11,
+		updated_at = NOW()
+	WHERE id = $12
+	`
+
+	_, err := r.db.Exec(
+		context.Background(),
+		query,
+		product.Name,
+		product.Description,
+		product.Category,
+		product.Price,
+		product.Currency,
+		product.Quantity,
+		product.Unit,
+		product.MarketName,
+		product.State,
+		product.LGA,
+		product.ImageURL,
+		id,
+	)
+
+	return err
+}
+func (r *ProductRepository) DeleteProduct(id string) error {
+
+	query := `DELETE FROM products WHERE id = $1`
+
+	_, err := r.db.Exec(
+		context.Background(),
+		query,
+		id,
+	)
+
+	return err
+}

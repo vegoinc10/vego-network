@@ -56,3 +56,17 @@ func (s *ProductService) GetProducts() ([]models.Product, error) {
 func (s *ProductService) GetProductByID(id string) (*models.Product, error) {
 	return s.repo.GetProductByID(id)
 }
+func (s *ProductService) UpdateProduct(
+	id string,
+	req *models.CreateProductRequest,
+) error {
+
+	if req.Currency == "" {
+		req.Currency = "NGN"
+	}
+
+	return s.repo.UpdateProduct(id, req)
+}
+func (s *ProductService) DeleteProduct(id string) error {
+	return s.repo.DeleteProduct(id)
+}

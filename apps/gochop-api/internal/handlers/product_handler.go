@@ -78,13 +78,46 @@ func (h *ProductHandler) GetProduct(c *gin.Context) {
 }
 
 func (h *ProductHandler) UpdateProduct(c *gin.Context) {
+
+	id := c.Param("id")
+
+	var req models.CreateProductRequest
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	err := h.service.UpdateProduct(id, &req)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Update Product",
+		"message": "Product updated successfully",
 	})
 }
 
 func (h *ProductHandler) DeleteProduct(c *gin.Context) {
+
+	id := c.Param("id")
+
+	err := h.service.DeleteProduct(id)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Delete Product",
+		"message": "Product deleted successfully",
 	})
 }
