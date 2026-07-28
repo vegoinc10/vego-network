@@ -31,7 +31,8 @@ func (h *ProductHandler) CreateProduct(c *gin.Context) {
 	}
 
 	// Temporary seller ID
-	sellerID := "99653013-45d6-4590-99ef-44b92c48f2b1"
+	// Get seller ID from JWT middleware
+	sellerID := c.GetString("userID")
 
 	err := h.service.CreateProduct(sellerID, &req)
 
@@ -79,7 +80,21 @@ func (h *ProductHandler) GetProduct(c *gin.Context) {
 
 func (h *ProductHandler) UpdateProduct(c *gin.Context) {
 
+	userID := c.GetString("userID")
+
 	id := c.Param("id")
+
+	// Verify ownership
+	err := h.service.VerifyOwner(id, userID)
+
+	if err != nil {
+
+		c.JSON(http.StatusForbidden, gin.H{
+			"error": "You cannot modify this product",
+		})
+
+		return
+	}
 
 	var req models.CreateProductRequest
 
@@ -90,7 +105,7 @@ func (h *ProductHandler) UpdateProduct(c *gin.Context) {
 		return
 	}
 
-	err := h.service.UpdateProduct(id, &req)
+	err = h.service.UpdateProduct(id, &req)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -103,12 +118,25 @@ func (h *ProductHandler) UpdateProduct(c *gin.Context) {
 		"message": "Product updated successfully",
 	})
 }
-
 func (h *ProductHandler) DeleteProduct(c *gin.Context) {
+
+	userID := c.GetString("userID")
 
 	id := c.Param("id")
 
-	err := h.service.DeleteProduct(id)
+	// Verify ownership
+	err := h.service.VerifyOwner(id, userID)
+
+	if err != nil {
+
+		c.JSON(http.StatusForbidden, gin.H{
+			"error": "You cannot delete this product",
+		})
+
+		return
+	}
+
+	err = h.service.DeleteProduct(id)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{

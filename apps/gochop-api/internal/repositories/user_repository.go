@@ -47,3 +47,38 @@ func (r *UserRepository) Create(user *models.User) error {
 		&user.CreatedAt,
 	)
 }
+func (r *UserRepository) GetUserByEmail(email string) (*models.User, error) {
+
+	query := `
+	SELECT
+		id,
+		full_name,
+		email,
+		password_hash,
+		created_at,
+		updated_at
+	FROM users
+	WHERE email = $1
+	`
+
+	var user models.User
+
+	err := r.DB.QueryRow(
+		context.Background(),
+		query,
+		email,
+	).Scan(
+		&user.ID,
+		&user.FullName,
+		&user.Email,
+		&user.PasswordHash,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}

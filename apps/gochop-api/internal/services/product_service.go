@@ -1,6 +1,7 @@
 package services
 
 import (
+	"errors"
 	"time"
 
 	"github.com/google/uuid"
@@ -69,4 +70,17 @@ func (s *ProductService) UpdateProduct(
 }
 func (s *ProductService) DeleteProduct(id string) error {
 	return s.repo.DeleteProduct(id)
+}
+func (s *ProductService) VerifyOwner(productID, userID string) error {
+
+	product, err := s.repo.GetProductByID(productID)
+	if err != nil {
+		return err
+	}
+
+	if product.SellerID != userID {
+		return errors.New("unauthorized")
+	}
+
+	return nil
 }
