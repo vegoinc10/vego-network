@@ -21,7 +21,7 @@ func NewProductService(repo *repositories.ProductRepository) *ProductService {
 }
 
 func (s *ProductService) CreateProduct(
-	sellerID string,
+	StoreID string,
 	req *models.CreateProductRequest,
 ) error {
 
@@ -31,7 +31,7 @@ func (s *ProductService) CreateProduct(
 
 	product := &models.Product{
 		ID:          uuid.New().String(),
-		SellerID:    sellerID,
+		StoreID:     StoreID,
 		Name:        req.Name,
 		Description: req.Description,
 		Category:    req.Category,
@@ -78,9 +78,16 @@ func (s *ProductService) VerifyOwner(productID, userID string) error {
 		return err
 	}
 
-	if product.SellerID != userID {
+	if product.StoreID != userID {
 		return errors.New("unauthorized")
 	}
 
 	return nil
+}
+func (s *ProductService) UpdateStock(productID string, quantity int) error {
+	return s.repo.UpdateStock(productID, quantity)
+}
+
+func (s *ProductService) GetProductQuantity(productID string) (int, error) {
+	return s.repo.GetProductQuantity(productID)
 }

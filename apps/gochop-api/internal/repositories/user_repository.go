@@ -50,16 +50,17 @@ func (r *UserRepository) Create(user *models.User) error {
 func (r *UserRepository) GetUserByEmail(email string) (*models.User, error) {
 
 	query := `
-	SELECT
-		id,
-		full_name,
-		email,
-		password_hash,
-		created_at,
-		updated_at
-	FROM users
-	WHERE email = $1
-	`
+SELECT
+    id,
+    full_name,
+    email,
+    password_hash,
+    role,
+    created_at,
+    updated_at
+FROM users
+WHERE email = $1
+`
 
 	var user models.User
 
@@ -72,6 +73,7 @@ func (r *UserRepository) GetUserByEmail(email string) (*models.User, error) {
 		&user.FullName,
 		&user.Email,
 		&user.PasswordHash,
+		&user.Role,
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	)

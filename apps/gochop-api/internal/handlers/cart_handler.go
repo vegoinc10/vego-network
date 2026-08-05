@@ -46,3 +46,27 @@ func (h *CartHandler) AddToCart(c *gin.Context) {
 		"message": "Product added to cart",
 	})
 }
+func (h *CartHandler) GetCart(c *gin.Context) {
+
+	userID := c.GetString("userID")
+
+	items, err := h.service.GetCart(userID)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	total := 0.0
+
+	for _, item := range items {
+		total += item.Subtotal
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"items": items,
+		"total": total,
+	})
+}

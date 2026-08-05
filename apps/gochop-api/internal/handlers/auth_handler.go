@@ -24,7 +24,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	var req models.LoginRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
+		c.JSON(400, gin.H{
 			"error": err.Error(),
 		})
 		return

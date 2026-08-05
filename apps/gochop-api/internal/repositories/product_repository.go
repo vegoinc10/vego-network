@@ -23,7 +23,7 @@ func (r *ProductRepository) CreateProduct(product *models.Product) error {
 	query := `
 	INSERT INTO products (
 		id,
-		seller_id,
+		store_id,
 		name,
 		description,
 		category,
@@ -48,7 +48,7 @@ func (r *ProductRepository) CreateProduct(product *models.Product) error {
 		context.Background(),
 		query,
 		product.ID,
-		product.SellerID,
+		product.StoreID,
 		product.Name,
 		product.Description,
 		product.Category,
@@ -73,7 +73,7 @@ func (r *ProductRepository) GetProducts() ([]models.Product, error) {
 		context.Background(),
 		`SELECT
 			id,
-			seller_id,
+			store_id,
 			name,
 			description,
 			category,
@@ -106,7 +106,7 @@ func (r *ProductRepository) GetProducts() ([]models.Product, error) {
 
 		err := rows.Scan(
 			&p.ID,
-			&p.SellerID,
+			&p.StoreID,
 			&p.Name,
 			&p.Description,
 			&p.Category,
@@ -137,7 +137,7 @@ func (r *ProductRepository) GetProductByID(id string) (*models.Product, error) {
 	query := `
 	SELECT
 		id,
-		seller_id,
+		store_id,
 		name,
 		description,
 		category,
@@ -164,7 +164,7 @@ func (r *ProductRepository) GetProductByID(id string) (*models.Product, error) {
 		id,
 	).Scan(
 		&product.ID,
-		&product.SellerID,
+		&product.StoreID,
 		&product.Name,
 		&product.Description,
 		&product.Category,
@@ -237,4 +237,40 @@ func (r *ProductRepository) DeleteProduct(id string) error {
 	)
 
 	return err
+}
+func (r *ProductRepository) UpdateStock(productID string, quantity int) error {
+
+	query := `
+	UPDATE products
+	SET
+		quantity = quantity - $1,
+		status = CASE
+			WHEN quantity - $1 <= 0 THEN 'out_of_stock'
+			ELSE 'active'
+		END,
+		updated_at = NOW()
+	WHERE id = $2
+	`
+
+	_, err := r.db.Exec(
+		context.Background(),
+		query,
+		quantity,
+		productID,
+	)
+
+	return err
+}
+
+func (r *ProductRepository) GetProductQuantity(productID string) (int, error) {
+
+	var quantity int
+
+	err := r.db.QueryRow(
+		context.Background(),
+		`SELECT quantity FROM products WHERE id = $1`,
+		productID,
+	).Scan(&quantity)
+
+	return quantity, err
 }

@@ -3,8 +3,8 @@ package models
 import "time"
 
 type Product struct {
-	ID       string `json:"id"`
-	SellerID string `json:"seller_id"`
+	ID      string `json:"id"`
+	StoreID string `json:"store_id"`
 
 	Name        string `json:"name"`
 	Description string `json:"description"`

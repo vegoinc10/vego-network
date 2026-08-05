@@ -30,11 +30,11 @@ func (h *ProductHandler) CreateProduct(c *gin.Context) {
 		return
 	}
 
-	// Temporary seller ID
-	// Get seller ID from JWT middleware
-	sellerID := c.GetString("userID")
+	// Temporary Store ID
+	// Get Store ID from JWT middleware
+	StoreID := c.GetString("userID")
 
-	err := h.service.CreateProduct(sellerID, &req)
+	err := h.service.CreateProduct(StoreID, &req)
 
 	if err != nil {
 		c.JSON(500, gin.H{

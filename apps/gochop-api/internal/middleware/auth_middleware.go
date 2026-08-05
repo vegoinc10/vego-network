@@ -38,7 +38,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		claims, err := utils.ValidateJWT(token)
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{
-				"error": "Invalid token",
+				"error": err.Error(),
 			})
 			c.Abort()
 			return
@@ -46,6 +46,7 @@ func AuthMiddleware() gin.HandlerFunc {
 
 		c.Set("userID", claims.UserID)
 		c.Set("email", claims.Email)
+		c.Set("role", claims.Role)
 
 		c.Next()
 	}

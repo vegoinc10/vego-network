@@ -10,12 +10,18 @@ import (
 )
 
 type AuthService struct {
-	UserRepo *repositories.UserRepository
+	userRepo   *repositories.UserRepository
+	walletRepo *repositories.WalletRepository
 }
 
-func NewAuthService(userRepo *repositories.UserRepository) *AuthService {
+func NewAuthService(
+	userRepo *repositories.UserRepository,
+	walletRepo *repositories.WalletRepository,
+) *AuthService {
+
 	return &AuthService{
-		UserRepo: userRepo,
+		userRepo:   userRepo,
+		walletRepo: walletRepo,
 	}
 }
 
@@ -36,9 +42,17 @@ func (s *AuthService) Register(req *models.RegisterRequest) (*models.User, error
 		IsActive:     true,
 	}
 
-	err = s.UserRepo.Create(user)
+	err = s.userRepo.Create(user)
 	if err != nil {
 		return nil, err
+	}
+
+	if user.Role == "vendor" {
+
+		err = s.walletRepo.CreateWallet(user.ID)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	user.PasswordHash = ""
@@ -47,7 +61,7 @@ func (s *AuthService) Register(req *models.RegisterRequest) (*models.User, error
 }
 func (s *AuthService) Login(req *models.LoginRequest) (string, error) {
 
-	user, err := s.UserRepo.GetUserByEmail(req.Email)
+	user, err := s.userRepo.GetUserByEmail(req.Email)
 	if err != nil {
 		return "", err
 	}
@@ -61,7 +75,7 @@ func (s *AuthService) Login(req *models.LoginRequest) (string, error) {
 		return "", errors.New("invalid email or password")
 	}
 
-	token, err := utils.GenerateJWT(user.ID, user.Email)
+	token, err := utils.GenerateJWT(user.ID, user.Email, user.Role)
 	if err != nil {
 		return "", err
 	}

@@ -18,3 +18,6 @@ func NewCartService(repo *repositories.CartRepository) *CartService {
 func (s *CartService) AddToCart(userID string, req *models.AddToCartRequest) error {
 	return s.repo.AddToCart(userID, req)
 }
+func (s *CartService) GetCart(userID string) ([]models.CartResponse, error) {
+	return s.repo.GetCart(userID)
+}
